@@ -1,6 +1,7 @@
 import { Transaction, Budget, Account, Category } from './types';
 
 export const categories: Category[] = [
+  // Expense categories
   { id: '1', name: 'Food & Dining', icon: '🍔', color: 'hsl(25, 95%, 53%)', type: 'expense' },
   { id: '2', name: 'Transport', icon: '🚗', color: 'hsl(210, 79%, 46%)', type: 'expense' },
   { id: '3', name: 'Shopping', icon: '🛍️', color: 'hsl(280, 65%, 55%)', type: 'expense' },
@@ -9,10 +10,26 @@ export const categories: Category[] = [
   { id: '6', name: 'Health', icon: '💊', color: 'hsl(0, 72%, 51%)', type: 'expense' },
   { id: '7', name: 'Education', icon: '📚', color: 'hsl(200, 70%, 50%)', type: 'expense' },
   { id: '8', name: 'Groceries', icon: '🛒', color: 'hsl(120, 50%, 45%)', type: 'expense' },
+  { id: '13', name: 'Rent', icon: '🏠', color: 'hsl(30, 60%, 50%)', type: 'expense' },
+  { id: '14', name: 'Insurance', icon: '🛡️', color: 'hsl(190, 55%, 45%)', type: 'expense' },
+  { id: '15', name: 'Subscriptions', icon: '📺', color: 'hsl(260, 60%, 55%)', type: 'expense' },
+  { id: '16', name: 'Travel', icon: '✈️', color: 'hsl(175, 65%, 45%)', type: 'expense' },
+  { id: '17', name: 'Personal Care', icon: '💇', color: 'hsl(310, 50%, 55%)', type: 'expense' },
+  { id: '18', name: 'Pets', icon: '🐾', color: 'hsl(35, 70%, 50%)', type: 'expense' },
+  { id: '19', name: 'Gifts', icon: '🎁', color: 'hsl(350, 65%, 55%)', type: 'expense' },
+  { id: '20', name: 'Other', icon: '📝', color: 'hsl(220, 15%, 50%)', type: 'expense' },
+
+  // Income categories
   { id: '9', name: 'Salary', icon: '💰', color: 'hsl(155, 72%, 45%)', type: 'income' },
   { id: '10', name: 'Freelance', icon: '💻', color: 'hsl(231, 75%, 55%)', type: 'income' },
   { id: '11', name: 'Investment', icon: '📈', color: 'hsl(170, 65%, 50%)', type: 'income' },
   { id: '12', name: 'Gift', icon: '🎁', color: 'hsl(320, 70%, 55%)', type: 'income' },
+  { id: '21', name: 'Business', icon: '🏢', color: 'hsl(200, 60%, 50%)', type: 'income' },
+  { id: '22', name: 'Rental Income', icon: '🏠', color: 'hsl(30, 55%, 50%)', type: 'income' },
+  { id: '23', name: 'Side Hustle', icon: '⚡', color: 'hsl(45, 90%, 50%)', type: 'income' },
+  { id: '24', name: 'Refund', icon: '💸', color: 'hsl(140, 50%, 45%)', type: 'income' },
+  { id: '25', name: 'Bonus', icon: '🏆', color: 'hsl(50, 80%, 50%)', type: 'income' },
+  { id: '26', name: 'Other', icon: '📝', color: 'hsl(220, 15%, 50%)', type: 'income' },
 ];
 
 export const mockTransactions: Transaction[] = [
