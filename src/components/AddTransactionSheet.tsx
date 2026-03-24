@@ -6,6 +6,7 @@ import { categories } from '@/lib/mock-data';
 import { TransactionType } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 type Props = { open: boolean; onClose: () => void };
 
@@ -19,8 +20,22 @@ const AddTransactionSheet = ({ open, onClose }: Props) => {
 
   const filtered = categories.filter(c => c.type === type);
 
+  const resetForm = () => {
+    setAmount('');
+    setDescription('');
+    setSelectedCategory('');
+    setAccount('Cash');
+  };
+
   const handleSubmit = () => {
-    if (!amount || !selectedCategory) return;
+    if (!amount || parseFloat(amount) <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+    if (!selectedCategory) {
+      toast.error('Please select a category');
+      return;
+    }
     const cat = categories.find(c => c.name === selectedCategory);
     addTransaction({
       amount: parseFloat(amount),
@@ -31,10 +46,14 @@ const AddTransactionSheet = ({ open, onClose }: Props) => {
       date: new Date().toISOString().split('T')[0],
       account,
     });
-    setAmount('');
-    setDescription('');
-    setSelectedCategory('');
+    toast.success(`${type === 'income' ? 'Income' : 'Expense'} of $${parseFloat(amount).toFixed(2)} added!`);
+    resetForm();
     onClose();
+  };
+
+  const handleTypeSwitch = (newType: TransactionType) => {
+    setType(newType);
+    setSelectedCategory('');
   };
 
   return (
@@ -65,7 +84,7 @@ const AddTransactionSheet = ({ open, onClose }: Props) => {
             {/* Type Toggle */}
             <div className="flex gap-2 mb-5 p-1 bg-secondary rounded-xl">
               <button
-                onClick={() => setType('expense')}
+                onClick={() => handleTypeSwitch('expense')}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   type === 'expense' ? 'bg-expense text-primary-foreground shadow-sm' : 'text-muted-foreground'
                 }`}
@@ -73,7 +92,7 @@ const AddTransactionSheet = ({ open, onClose }: Props) => {
                 <Minus className="w-4 h-4" /> Expense
               </button>
               <button
-                onClick={() => setType('income')}
+                onClick={() => handleTypeSwitch('income')}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   type === 'income' ? 'bg-income text-primary-foreground shadow-sm' : 'text-muted-foreground'
                 }`}
@@ -92,6 +111,8 @@ const AddTransactionSheet = ({ open, onClose }: Props) => {
                   value={amount}
                   onChange={e => setAmount(e.target.value)}
                   placeholder="0.00"
+                  min="0"
+                  step="0.01"
                   className="pl-10 text-2xl font-bold h-14 rounded-xl bg-secondary border-0"
                 />
               </div>
@@ -110,8 +131,10 @@ const AddTransactionSheet = ({ open, onClose }: Props) => {
 
             {/* Category */}
             <div className="mb-5">
-              <label className="text-xs font-medium text-muted-foreground mb-2 block">Category</label>
-              <div className="grid grid-cols-4 gap-2">
+              <label className="text-xs font-medium text-muted-foreground mb-2 block">
+                Category ({type === 'income' ? 'Income' : 'Expense'})
+              </label>
+              <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
                 {filtered.map(cat => (
                   <button
                     key={cat.id}
@@ -132,7 +155,7 @@ const AddTransactionSheet = ({ open, onClose }: Props) => {
             {/* Account */}
             <div className="mb-6">
               <label className="text-xs font-medium text-muted-foreground mb-2 block">Account</label>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {['Cash', 'Bank Account', 'Credit Card', 'Digital Wallet'].map(a => (
                   <button
                     key={a}
