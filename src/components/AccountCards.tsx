@@ -19,7 +19,7 @@ const AccountCards = () => {
             <span className="text-xs font-medium text-muted-foreground">{acc.name}</span>
           </div>
           <p className={`text-lg font-bold ${acc.balance < 0 ? 'text-expense' : 'text-foreground'}`}>
-            ${Math.abs(acc.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {cs}{Math.abs(acc.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </p>
         </motion.div>
       ))}
