@@ -17,6 +17,10 @@ export type Transaction = {
   description: string;
   date: string;
   account: string;
+  tags?: string[];
+  notes?: string;
+  isRecurring?: boolean;
+  recurringInterval?: 'daily' | 'weekly' | 'monthly' | 'yearly';
 };
 
 export type Budget = {
@@ -34,4 +38,36 @@ export type Account = {
   type: 'cash' | 'bank' | 'wallet' | 'credit';
   balance: number;
   icon: string;
+};
+
+export type Goal = {
+  id: string;
+  name: string;
+  targetAmount: number;
+  savedAmount: number;
+  deadline: string;
+  icon: string;
+  color: string;
+};
+
+export type Notification = {
+  id: string;
+  type: 'expense_reminder' | 'bill_reminder' | 'budget_alert' | 'goal_reminder' | 'general';
+  title: string;
+  message: string;
+  date: string;
+  read: boolean;
+};
+
+export type AppSettings = {
+  currency: string;
+  currencySymbol: string;
+  language: 'en' | 'bn';
+  darkMode: boolean;
+  notificationsEnabled: boolean;
+  budgetAlerts: boolean;
+  billReminders: boolean;
+  goalReminders: boolean;
+  profileName: string;
+  profileEmail: string;
 };

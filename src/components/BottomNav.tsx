@@ -1,4 +1,4 @@
-import { Home, ListOrdered, PieChart, Target, Plus } from 'lucide-react';
+import { Home, ListOrdered, PieChart, Target, Plus, Settings } from 'lucide-react';
 
 type Props = {
   active: string;

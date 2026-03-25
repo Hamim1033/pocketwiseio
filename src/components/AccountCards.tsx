@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useAppData } from '@/contexts/AppContext';
 
 const AccountCards = () => {
-  const { accounts } = useAppData();
+  const { accounts, cs } = useAppData();
 
   return (
     <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
@@ -19,7 +19,7 @@ const AccountCards = () => {
             <span className="text-xs font-medium text-muted-foreground">{acc.name}</span>
           </div>
           <p className={`text-lg font-bold ${acc.balance < 0 ? 'text-expense' : 'text-foreground'}`}>
-            ${Math.abs(acc.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {cs}{Math.abs(acc.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </p>
         </motion.div>
       ))}
