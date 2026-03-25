@@ -228,7 +228,7 @@ const AddTransactionSheet = ({ open, onClose, editTransaction }: Props) => {
                 {isRecurring && (
                   <select
                     value={recurringInterval}
-                    onChange={e => setRecurringInterval(e.target.value)}
+                    onChange={e => setRecurringInterval(e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly')}
                     className="text-xs bg-card rounded-lg px-2 py-1 border-0 text-foreground"
                   >
                     <option value="daily">Daily</option>
