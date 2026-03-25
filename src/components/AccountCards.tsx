@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useAppData } from '@/contexts/AppContext';
 
 const AccountCards = () => {
-  const { accounts } = useAppData();
+  const { accounts, cs } = useAppData();
 
   return (
     <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
