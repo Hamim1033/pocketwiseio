@@ -225,7 +225,36 @@ const SettingsPage = () => {
         />
       </Section>
 
+      <Section title="Account">
+        {authUser ? (
+          <>
+            <Row
+              icon={User}
+              label={authUser.email || 'Signed in'}
+              right={<span className="text-[10px] text-income font-medium">Connected</span>}
+            />
+            <Row
+              icon={LogOut}
+              label="Sign Out"
+              right={<ChevronRight className="w-4 h-4 text-muted-foreground" />}
+              onClick={async () => {
+                await supabase.auth.signOut();
+                toast.success('Signed out');
+              }}
+            />
+          </>
+        ) : (
+          <Row
+            icon={UserPlus}
+            label="Create Account / Sign In"
+            right={<ChevronRight className="w-4 h-4 text-muted-foreground" />}
+            onClick={() => setShowAuth(true)}
+          />
+        )}
+      </Section>
+
       <PinSetupModal open={showPinSetup} onClose={() => setShowPinSetup(false)} onSetPin={setPin} />
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} onSuccess={() => setShowAuth(false)} />}
     </motion.div>
   );
 };
