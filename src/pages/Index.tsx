@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, Search, Settings, Crown } from 'lucide-react';
+import { Bell, Search, Settings, Crown, ArrowLeft } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import BalanceCard from '@/components/BalanceCard';
 import SpendingChart, { CategoryChart } from '@/components/SpendingChart';
@@ -14,19 +14,25 @@ import NotificationsSheet from '@/components/NotificationsSheet';
 import SearchSheet from '@/components/SearchSheet';
 import AddTransactionSheet from '@/components/AddTransactionSheet';
 import BottomNav from '@/components/BottomNav';
+import PinLockScreen from '@/components/PinLockScreen';
 import { AppProvider, useAppData } from '@/contexts/AppContext';
 import { Transaction } from '@/lib/types';
 
 const AppContent = () => {
   const [page, setPage] = useState('home');
+  const [prevPage, setPrevPage] = useState('home');
   const [showAdd, setShowAdd] = useState(false);
   const [showPremium, setShowPremium] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
 
-  const { notifications, settings, t } = useAppData();
+  const { notifications, settings, t, isLocked, unlock } = useAppData();
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  if (isLocked) {
+    return <PinLockScreen onUnlock={unlock} />;
+  }
 
   const handleEdit = (tx: Transaction) => {
     setEditTransaction(tx);
@@ -38,12 +44,34 @@ const AppContent = () => {
     setEditTransaction(null);
   };
 
+  const navigateTo = (newPage: string) => {
+    setPrevPage(page);
+    setPage(newPage);
+  };
+
+  const goBack = () => {
+    setPage(prevPage === 'settings' ? 'home' : prevPage);
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24 max-w-lg mx-auto">
       {/* Header */}
       <header className="flex items-center justify-between px-5 pt-5 pb-3">
         <div className="flex items-center gap-2.5">
-          <img src={logo} alt="SpendWise" className="h-8 w-auto" />
+          {page === 'settings' ? (
+            <button
+              onClick={goBack}
+              className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center"
+            >
+              <ArrowLeft className="w-4 h-4 text-foreground" />
+            </button>
+          ) : (
+            <img
+              src={logo}
+              alt="SpendWise"
+              className="h-8 w-auto dark:brightness-110 dark:contrast-110"
+            />
+          )}
           <div>
             <p className="text-xs text-muted-foreground">{t('welcome')}</p>
             <p className="text-sm font-bold text-foreground">{settings.profileName}</p>
@@ -68,7 +96,7 @@ const AppContent = () => {
             )}
           </button>
           <button
-            onClick={() => setPage('settings')}
+            onClick={() => navigateTo('settings')}
             className={`w-9 h-9 rounded-xl flex items-center justify-center ${page === 'settings' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}
           >
             <Settings className="w-4 h-4" />
@@ -99,7 +127,7 @@ const AppContent = () => {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-foreground">{t('recentTransactions')}</h3>
-                <button onClick={() => setPage('transactions')} className="text-xs text-primary font-medium">
+                <button onClick={() => navigateTo('transactions')} className="text-xs text-primary font-medium">
                   {t('seeAll')}
                 </button>
               </div>
@@ -141,7 +169,7 @@ const AppContent = () => {
       <PremiumScreen open={showPremium} onClose={() => setShowPremium(false)} />
       <NotificationsSheet open={showNotifications} onClose={() => setShowNotifications(false)} />
       <SearchSheet open={showSearch} onClose={() => setShowSearch(false)} onEdit={handleEdit} />
-      <BottomNav active={page} onNavigate={setPage} onAdd={() => setShowAdd(true)} />
+      <BottomNav active={page} onNavigate={navigateTo} onAdd={() => setShowAdd(true)} />
     </div>
   );
 };

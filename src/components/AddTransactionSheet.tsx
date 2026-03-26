@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, Calendar, Tag, FileText, RotateCcw } from 'lucide-react';
 import { useAppData } from '@/contexts/AppContext';
@@ -16,29 +16,50 @@ type Props = {
 
 const AddTransactionSheet = ({ open, onClose, editTransaction }: Props) => {
   const { addTransaction, updateTransaction, cs } = useAppData();
+
+  // Load last-used preferences from localStorage
+  const getLastCategory = (type: TransactionType) => localStorage.getItem('sw_last_category_' + type) || '';
+  const getLastAccount = () => localStorage.getItem('sw_last_account') || 'Cash';
+
   const [type, setType] = useState<TransactionType>(editTransaction?.type || 'expense');
   const [amount, setAmount] = useState(editTransaction?.amount.toString() || '');
   const [description, setDescription] = useState(editTransaction?.description || '');
-  const [selectedCategory, setSelectedCategory] = useState(editTransaction?.category || '');
-  const [account, setAccount] = useState(editTransaction?.account || 'Cash');
+  const [selectedCategory, setSelectedCategory] = useState(editTransaction?.category || getLastCategory('expense'));
+  const [account, setAccount] = useState(editTransaction?.account || getLastAccount());
   const [date, setDate] = useState(editTransaction?.date || new Date().toISOString().split('T')[0]);
   const [tags, setTags] = useState(editTransaction?.tags?.join(', ') || '');
   const [notes, setNotes] = useState(editTransaction?.notes || '');
   const [isRecurring, setIsRecurring] = useState(editTransaction?.isRecurring || false);
   const [recurringInterval, setRecurringInterval] = useState(editTransaction?.recurringInterval || 'monthly');
 
-  const filtered = categories.filter(c => c.type === type);
+  // Reset form when opening with edit or new
+  useEffect(() => {
+    if (open) {
+      if (editTransaction) {
+        setType(editTransaction.type);
+        setAmount(editTransaction.amount.toString());
+        setDescription(editTransaction.description);
+        setSelectedCategory(editTransaction.category);
+        setAccount(editTransaction.account);
+        setDate(editTransaction.date);
+        setTags(editTransaction.tags?.join(', ') || '');
+        setNotes(editTransaction.notes || '');
+        setIsRecurring(editTransaction.isRecurring || false);
+        setRecurringInterval(editTransaction.recurringInterval || 'monthly');
+      } else {
+        setAmount('');
+        setDescription('');
+        setSelectedCategory(getLastCategory(type));
+        setAccount(getLastAccount());
+        setDate(new Date().toISOString().split('T')[0]);
+        setTags('');
+        setNotes('');
+        setIsRecurring(false);
+      }
+    }
+  }, [open, editTransaction]);
 
-  const resetForm = () => {
-    setAmount('');
-    setDescription('');
-    setSelectedCategory('');
-    setAccount('Cash');
-    setDate(new Date().toISOString().split('T')[0]);
-    setTags('');
-    setNotes('');
-    setIsRecurring(false);
-  };
+  const filtered = categories.filter(c => c.type === type);
 
   const handleSubmit = () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -73,13 +94,12 @@ const AddTransactionSheet = ({ open, onClose, editTransaction }: Props) => {
       addTransaction(txData);
       toast.success(`${type === 'income' ? 'Income' : 'Expense'} of ${cs}${parseFloat(amount).toFixed(2)} added!`);
     }
-    resetForm();
     onClose();
   };
 
   const handleTypeSwitch = (newType: TransactionType) => {
     setType(newType);
-    setSelectedCategory('');
+    setSelectedCategory(getLastCategory(newType));
   };
 
   return (

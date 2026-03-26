@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Transaction, Budget, Account, Goal, Notification, AppSettings } from '@/lib/types';
-import { mockTransactions, mockBudgets, mockAccounts } from '@/lib/mock-data';
 import { translations, TranslationKey } from '@/lib/translations';
 
 type AppContextType = {
@@ -28,7 +27,12 @@ type AppContextType = {
   totalIncome: number;
   totalExpense: number;
   t: (key: TranslationKey) => string;
-  cs: string; // currency symbol
+  cs: string;
+  isLocked: boolean;
+  unlock: (pin: string) => boolean;
+  setPin: (pin: string) => void;
+  removePin: () => void;
+  hasPin: boolean;
 };
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -43,13 +47,13 @@ const defaultSettings: AppSettings = {
   currency: 'USD',
   currencySymbol: '$',
   language: 'en',
-  darkMode: true,
+  darkMode: false,
   notificationsEnabled: true,
   budgetAlerts: true,
   billReminders: true,
   goalReminders: true,
-  profileName: 'SpendWise User',
-  profileEmail: 'user@example.com',
+  profileName: 'User',
+  profileEmail: '',
 };
 
 const loadState = <T,>(key: string, fallback: T): T => {
@@ -61,23 +65,45 @@ const loadState = <T,>(key: string, fallback: T): T => {
   }
 };
 
-const defaultNotifications: Notification[] = [
-  { id: '1', type: 'budget_alert', title: 'Budget Warning', message: 'Bills & Utilities budget is at 95%!', date: '2026-03-25', read: false },
-  { id: '2', type: 'bill_reminder', title: 'Bill Due', message: 'Electricity bill due in 3 days', date: '2026-03-24', read: false },
-  { id: '3', type: 'goal_reminder', title: 'Goal Update', message: 'You\'re 60% towards your Emergency Fund goal!', date: '2026-03-23', read: true },
+const defaultAccounts: Account[] = [
+  { id: '1', name: 'Cash', type: 'cash', balance: 0, icon: '💵' },
+  { id: '2', name: 'Bank Account', type: 'bank', balance: 0, icon: '🏦' },
+  { id: '3', name: 'Credit Card', type: 'credit', balance: 0, icon: '💳' },
+  { id: '4', name: 'Digital Wallet', type: 'wallet', balance: 0, icon: '📱' },
 ];
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [transactions, setTransactions] = useState<Transaction[]>(() => loadState('sw_transactions', mockTransactions));
-  const [budgets, setBudgets] = useState<Budget[]>(() => loadState('sw_budgets', mockBudgets));
-  const [accounts] = useState<Account[]>(mockAccounts);
-  const [goals, setGoals] = useState<Goal[]>(() => loadState('sw_goals', [
-    { id: '1', name: 'Emergency Fund', targetAmount: 5000, savedAmount: 3000, deadline: '2026-12-31', icon: '🛡️', color: 'hsl(155, 72%, 45%)' },
-    { id: '2', name: 'Vacation Trip', targetAmount: 2000, savedAmount: 750, deadline: '2026-08-15', icon: '✈️', color: 'hsl(231, 75%, 55%)' },
-    { id: '3', name: 'New Laptop', targetAmount: 1500, savedAmount: 400, deadline: '2026-06-30', icon: '💻', color: 'hsl(280, 65%, 55%)' },
-  ]));
-  const [notifications, setNotifications] = useState<Notification[]>(() => loadState('sw_notifications', defaultNotifications));
+  const [transactions, setTransactions] = useState<Transaction[]>(() => loadState('sw_transactions', []));
+  const [budgets, setBudgets] = useState<Budget[]>(() => loadState('sw_budgets', []));
+  const [accounts] = useState<Account[]>(defaultAccounts);
+  const [goals, setGoals] = useState<Goal[]>(() => loadState('sw_goals', []));
+  const [notifications, setNotifications] = useState<Notification[]>(() => loadState('sw_notifications', []));
   const [settings, setSettings] = useState<AppSettings>(() => loadState('sw_settings', defaultSettings));
+
+  // PIN lock
+  const [storedPin, setStoredPin] = useState<string | null>(() => localStorage.getItem('sw_pin'));
+  const [isLocked, setIsLocked] = useState(() => !!localStorage.getItem('sw_pin'));
+
+  const hasPin = !!storedPin;
+
+  const unlock = (pin: string): boolean => {
+    if (pin === storedPin) {
+      setIsLocked(false);
+      return true;
+    }
+    return false;
+  };
+
+  const setPin = (pin: string) => {
+    localStorage.setItem('sw_pin', pin);
+    setStoredPin(pin);
+  };
+
+  const removePin = () => {
+    localStorage.removeItem('sw_pin');
+    setStoredPin(null);
+    setIsLocked(false);
+  };
 
   // Persist to localStorage
   useEffect(() => { localStorage.setItem('sw_transactions', JSON.stringify(transactions)); }, [transactions]);
@@ -114,6 +140,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const addTransaction = (t: Omit<Transaction, 'id'>) => {
     const newT = { ...t, id: Date.now().toString() };
     setTransactions(prev => [newT, ...prev]);
+    // Save last-used preferences
+    localStorage.setItem('sw_last_category_' + t.type, t.category);
+    localStorage.setItem('sw_last_account', t.account);
     // Update budget spent
     if (t.type === 'expense') {
       setBudgets(prev => prev.map(b =>
@@ -178,7 +207,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-  const totalBalance = accounts.reduce((s, a) => s + a.balance, 0);
+  const totalBalance = totalIncome - totalExpense;
 
   const t = (key: TranslationKey) => translations[settings.language][key] || translations.en[key];
   const cs = settings.currencySymbol;
@@ -192,6 +221,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       addNotification, markNotificationRead, clearNotifications,
       updateSettings,
       totalBalance, totalIncome, totalExpense, t, cs,
+      isLocked, unlock, setPin, removePin, hasPin,
     }}>
       {children}
     </AppContext.Provider>
