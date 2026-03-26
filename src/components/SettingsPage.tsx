@@ -12,6 +12,16 @@ import AuthModal from '@/components/AuthModal';
 const SettingsPage = () => {
   const { settings, updateSettings, t, hasPin, setPin, removePin } = useAppData();
   const [showPinSetup, setShowPinSetup] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [authUser, setAuthUser] = useState<any>(null);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setAuthUser(session?.user || null);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => setAuthUser(session?.user || null));
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleCurrencyChange = (code: string) => {
     const c = currencies.find(c => c.code === code);
