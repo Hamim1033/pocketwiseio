@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { User, Globe, Moon, Sun, Bell, Shield, Database, ChevronRight } from 'lucide-react';
+import { User, Globe, Moon, Sun, Bell, Shield, Database, ChevronRight, Lock, Unlock } from 'lucide-react';
 import { useAppData } from '@/contexts/AppContext';
 import { currencies } from '@/lib/currencies';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import PinSetupModal from '@/components/PinSetupModal';
 
 const SettingsPage = () => {
-  const { settings, updateSettings, t } = useAppData();
+  const { settings, updateSettings, t, hasPin, setPin, removePin } = useAppData();
+  const [showPinSetup, setShowPinSetup] = useState(false);
 
   const handleCurrencyChange = (code: string) => {
     const c = currencies.find(c => c.code === code);
@@ -59,6 +62,15 @@ const SettingsPage = () => {
     input.click();
   };
 
+  const handleTogglePin = () => {
+    if (hasPin) {
+      removePin();
+      toast.success('PIN lock removed');
+    } else {
+      setShowPinSetup(true);
+    }
+  };
+
   const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="mb-5">
       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">{title}</h3>
@@ -70,7 +82,7 @@ const SettingsPage = () => {
 
   const Row = ({ icon: Icon, label, right, onClick }: { icon: any; label: string; right: React.ReactNode; onClick?: () => void }) => (
     <div
-      className={`flex items-center justify-between px-4 py-3.5 ${onClick ? 'cursor-pointer hover:bg-secondary/50' : ''}`}
+      className={`flex items-center justify-between px-4 py-3.5 ${onClick ? 'cursor-pointer hover:bg-secondary/50 active:bg-secondary/70 transition-colors' : ''}`}
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
@@ -171,6 +183,21 @@ const SettingsPage = () => {
         />
       </Section>
 
+      <Section title="Security">
+        <Row
+          icon={hasPin ? Lock : Unlock}
+          label="App Lock (PIN)"
+          right={
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-medium ${hasPin ? 'text-income' : 'text-muted-foreground'}`}>
+                {hasPin ? 'Enabled' : 'Disabled'}
+              </span>
+              <Toggle value={hasPin} onChange={handleTogglePin} />
+            </div>
+          }
+        />
+      </Section>
+
       <Section title="Data">
         <Row
           icon={Database}
@@ -186,13 +213,7 @@ const SettingsPage = () => {
         />
       </Section>
 
-      <Section title="Security">
-        <Row
-          icon={Shield}
-          label="App Lock (PIN)"
-          right={<span className="text-xs text-muted-foreground">Coming Soon</span>}
-        />
-      </Section>
+      <PinSetupModal open={showPinSetup} onClose={() => setShowPinSetup(false)} onSetPin={setPin} />
     </motion.div>
   );
 };
