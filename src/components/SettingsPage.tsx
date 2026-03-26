@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Globe, Moon, Sun, Bell, Shield, Database, ChevronRight, Lock, Unlock } from 'lucide-react';
+import { User, Globe, Moon, Sun, Bell, Shield, Database, ChevronRight, Lock, Unlock, UserPlus, LogOut } from 'lucide-react';
 import { useAppData } from '@/contexts/AppContext';
 import { currencies } from '@/lib/currencies';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import PinSetupModal from '@/components/PinSetupModal';
+import AuthModal from '@/components/AuthModal';
 
 const SettingsPage = () => {
   const { settings, updateSettings, t, hasPin, setPin, removePin } = useAppData();
