@@ -68,9 +68,14 @@ const AppContent = () => {
             </button>
           ) : (
             <img
-              src={logo}
-              alt="SpendWise"
-              className="h-8 w-auto dark:brightness-110 dark:contrast-110"
+  src={logo}
+  alt="SpendWise"
+  className="h-8 w-auto dark:hidden"
+/>
+<img
+  src={logoDark}
+  alt="SpendWise"
+  className="h-8 w-auto hidden dark:block"
             />
           )}
           <div>
