@@ -23,19 +23,17 @@ const styleMap = {
   prediction: { color: 'text-primary', bg: 'bg-primary/10' },
 };
 
-const fallbackInsights: Insight[] = [
-  { type: 'alert', title: 'Spending Alert', text: 'Your shopping spending is 15% higher than last month. Consider setting a stricter budget.' },
-  { type: 'tip', title: 'Money Tip', text: 'Switching to a meal prep plan could save you ~$120/month on food.' },
-  { type: 'prediction', title: 'AI Prediction', text: "Based on your patterns, you'll likely spend $2,800 this month — $200 under budget!" },
-];
-
 const AIInsights = () => {
   const { transactions } = useAppData();
-  const [insights, setInsights] = useState<Insight[]>(fallbackInsights);
+  const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchInsights = async () => {
-    if (transactions.length === 0) return;
+    if (transactions.length === 0) {
+      setInsights([]);
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('ai-insights', {
@@ -55,8 +53,27 @@ const AIInsights = () => {
   };
 
   useEffect(() => {
-    fetchInsights();
-  }, []);
+    if (transactions.length > 0) {
+      fetchInsights();
+    } else {
+      setInsights([]);
+    }
+  }, [transactions.length]);
+
+  // নতুন ইউজার বা লেনদেন না থাকলে ক্লিন ফাঁকা স্টেট দেখাবে
+  if (transactions.length === 0) {
+    return (
+      <div className="glass-card rounded-xl p-5 text-center">
+        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-2">
+          <Sparkles className="w-5 h-5" />
+        </div>
+        <p className="text-sm font-semibold text-foreground">No AI Insights Yet</p>
+        <p className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto">
+          Add your first income or expense to receive AI-powered spending tips and budget predictions.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
