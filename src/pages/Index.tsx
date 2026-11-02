@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Bell, Search, Settings, Crown, ArrowLeft } from 'lucide-react';
 import logo from '@/assets/logo.png';
+import logoDark from '@/assets/logo-dark.png';
 import BalanceCard from '@/components/BalanceCard';
 import SpendingChart, { CategoryChart } from '@/components/SpendingChart';
 import TransactionList from '@/components/TransactionList';
