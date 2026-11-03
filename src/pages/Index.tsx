@@ -67,16 +67,10 @@ const AppContent = () => {
               <ArrowLeft className="w-4 h-4 text-foreground" />
             </button>
           ) : (
-            <img
-  src={logo}
-  alt="SpendWise"
-  className="h-8 w-auto dark:hidden"
-/>
-<img
-  src={logoDark}
-  alt="SpendWise"
-  className="h-8 w-auto hidden dark:block"
-            />
+            <>
+              <img src={logo} alt="SpendWise" className="h-8 w-auto dark:hidden" />
+              <img src={logoDark} alt="SpendWise" className="h-8 w-auto hidden dark:block" />
+            </>
           )}
           <div>
             <p className="text-xs text-muted-foreground">{t('welcome')}</p>
