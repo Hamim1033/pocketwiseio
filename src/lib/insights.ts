@@ -203,31 +203,22 @@ export const generateInsights = (input: InsightInput): Insight[] => {
   // 8. Goals behind pace
   goals.forEach(g => {
     if (g.targetAmount <= 0 || g.savedAmount >= g.targetAmount) return;
-    const totalDays = daysBetween(today, g.deadline);
-    const daysGone = daysBetween(g.deadline, today) === 0 && totalDays === 0 ? 0 : Math.max(0, daysBetween(g.startDateFallback || '', '') || 0);
-    void daysGone;
-    // pace measured against "today → deadline": required saving per remaining day
-    const remainingDays = Math.max(totalDays, 1);
+    const remainingDays = daysBetween(today, g.deadline);
+    if (remainingDays < 0 || remainingDays > 30) return;
     const remainingAmount = g.targetAmount - g.savedAmount;
-    const perDay = remainingAmount / remainingDays;
-    if (perDay > 0) {
-      const expectedPct = 100 - (remainingDays / (remainingDays + (totalDays >= 0 ? 30 : 30))) * 100;
-      void expectedPct;
-      if (totalDays < 30 && remainingAmount > 0) {
-        insights.push({
-          id: `goal_pace_${g.id}`,
-          category: 'savings',
-          priority: 'medium',
-          title: `"${g.name}" needs ${money(cs, perDay)}/day`,
-          explanation: `${remainingDays} days remain to reach ${money(cs, g.targetAmount)} for "${g.name}". You have ${money(cs, remainingAmount)} left to save — that's ${money(cs, perDay)} per day.`,
-          supportingData: [`Saved: ${money(cs, g.savedAmount)} / ${money(cs, g.targetAmount)}`, `Days left: ${remainingDays}`],
-          actionLabel: 'Add Savings',
-          actionPage: 'savings',
-          dateRange: `Deadline ${g.deadline}`,
-          source: 'rules',
-        });
-      }
-    }
+    const perDay = remainingAmount / Math.max(remainingDays, 1);
+    insights.push({
+      id: `goal_pace_${g.id}`,
+      category: 'savings',
+      priority: 'medium',
+      title: `"${g.name}" needs ${money(cs, perDay)}/day`,
+      explanation: `${remainingDays} days remain to reach ${money(cs, g.targetAmount)} for "${g.name}". You have ${money(cs, remainingAmount)} left to save — that's ${money(cs, perDay)} per day.`,
+      supportingData: [`Saved: ${money(cs, g.savedAmount)} / ${money(cs, g.targetAmount)}`, `Days left: ${remainingDays}`],
+      actionLabel: 'Add Savings',
+      actionPage: 'savings',
+      dateRange: `Deadline ${g.deadline}`,
+      source: 'rules',
+    });
   });
 
   // 9. Missing records: expenses but no income recorded
