@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useMemo, ReactNode } fr
 import { Transaction, Budget, Account, Goal, Notification, AppSettings, Transfer, Loan, LoanPayment, Bill, GoalContribution, DatePreset, DateRange, Insight } from '@/lib/types';
 import { translations, TranslationKey } from '@/lib/translations';
 import { getDateRange } from '@/lib/dateRange';
-import { getAccountBalance, loanRemaining, totalOutstandingLoans, billNextDue, daysBetweenBillSafe } from '@/lib/financeHelpers';
+import { getAccountBalance, loanRemaining, totalOutstandingLoans, billNextDue } from '@/lib/finance';
 import { todayISO, daysBetween } from '@/lib/dateRange';
 
 type AppContextType = {
