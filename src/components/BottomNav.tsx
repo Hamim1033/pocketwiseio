@@ -1,4 +1,4 @@
-import { Home, ListOrdered, PieChart, Target, Plus, Settings } from 'lucide-react';
+import { Home, ListOrdered, PieChart, LayoutGrid, Plus } from 'lucide-react';
 
 type Props = {
   active: string;
@@ -12,7 +12,7 @@ const BottomNav = ({ active, onNavigate, onAdd }: Props) => {
     { id: 'transactions', icon: ListOrdered, label: 'History' },
     { id: 'add', icon: Plus, label: 'Add', isCenter: true },
     { id: 'budget', icon: PieChart, label: 'Budget' },
-    { id: 'goals', icon: Target, label: 'Goals' },
+    { id: 'more', icon: LayoutGrid, label: 'Modules' },
   ];
 
   return (
